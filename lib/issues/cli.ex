@@ -3,7 +3,7 @@ defmodule Issues.CLI do
 
   def run(argv) do
     argv
-      |> parsed_args
+      |> parse
       |> process
   end
 
