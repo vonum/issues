@@ -5,4 +5,4 @@
                         'Elixir.Issues.GithubIssues']},
               {registered,[]},
               {vsn,"0.1.0"},
-              {extra_applications,[logger]}]}.
+              {extra_applications,[logger,httpoison]}]}.
