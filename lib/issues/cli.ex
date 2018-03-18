@@ -1,4 +1,7 @@
 defmodule Issues.CLI do
+  alias Issues.GithubIssues, as: GithubIssues
+  alias Issues.TableFormatter, as: TF
+
   @default_count 10
 
   def run(argv) do
@@ -27,19 +30,24 @@ defmodule Issues.CLI do
     """
   end
 
-  def process({user, project, _count}) do
-    Issues.GithubIssues.fetch(user, project)
-      |> decode_response
-      |> convert_to_list_of_hashdicts
-      |> sort
+  def process({user, project, count}) do
+    response = GithubIssues.fetch(user, project) |> decode_response
+
+    if is_binary(response) do
+      IO.puts(response)
+    else
+      response
+        |> convert_to_list_of_hashdicts
+        |> sort
+        |> Enum.take(count)
+        |> TF.print_table_for_columns(["number", "created_at", "title"])
+    end
   end
 
   def decode_response({:ok, body}), do: body
-  def decode_response({:error, text = "Resource not found"}), do: text
 
   def decode_response({:error, error}) do
-    {_, message} = List.keyfind(error, "message", 0)
-    "Error fetching from github: #{message}"
+    "Error fetching from GitHub: #{error}"
   end
 
   def convert_to_list_of_hashdicts(list) do
