@@ -26,4 +26,17 @@ defmodule Issues.CLI do
     usage: issues <user> <project> [count | #{@default_count}]
     """
   end
+
+  def process({user, project, _count}) do
+    Issues.GithubIssues.fetch(user, project)
+      |> decode_response
+  end
+
+  def decode_response({:ok, body}), do: body
+  def decode_response({:error, text = "Resource not found"}), do: text
+
+  def decode_response({:error, error}) do
+    {_, message} = List.keyfind(error, "message", 0)
+    "Error fetching from github: #{message}"
+  end
 end
